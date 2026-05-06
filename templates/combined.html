@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Combined Data — JOIN Result</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/combined.css') }}"/>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <main class="page-wrap">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="logo-mark">⚡</div>
+      <h1>Combined Data</h1>
+      <p class="subtitle">Users + Education — INNER JOIN on <span class="highlight">username</span></p>
+    </div>
+
+    <!-- Stats Cards -->
+    {% if df_stats %}
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num">{{ df_stats.total_rows }}</div>
+        <div class="stat-label">Total Records</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ df_stats.total_columns }}</div>
+        <div class="stat-label">Total Columns</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ df_stats.cities | length }}</div>
+        <div class="stat-label">Cities</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">{{ df_stats.degrees | length }}</div>
+        <div class="stat-label">Degrees</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- SQL Query shown -->
+    <div class="sql-box">
+      <div class="sql-label">SQL Query Used</div>
+      <pre class="sql-code">SELECT u.id, u.username, u.email, u.phone,
+       e.college_name, e.degree, e.year, e.city
+FROM users u
+INNER JOIN education e ON u.username = e.username
+ORDER BY u.username;</pre>
+    </div>
+
+    <!-- DataFrame / Table -->
+    {% if df_html %}
+    <div class="section-title">📊 Pandas DataFrame</div>
+    <div class="df-wrap">
+      {{ df_html | safe }}
+    </div>
+
+    <div class="df-info">
+      <strong>Columns:</strong>
+      {% for col in df_stats.columns %}
+        <span class="col-badge">{{ col }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="df-info">
+      <strong>Cities:</strong>
+      {% for c in df_stats.cities %}
+        <span class="col-badge green">{{ c }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="df-info">
+      <strong>Degrees:</strong>
+      {% for d in df_stats.degrees %}
+        <span class="col-badge orange">{{ d }}</span>
+      {% endfor %}
+    </div>
+
+    <div class="csv-note">✅ CSV file bhi save ho gayi: <code>combined_data.csv</code></div>
+
+    {% elif rows %}
+    <!-- Fallback: Pandas nahi hai toh plain table -->
+    <div class="section-title">📋 JOIN Result Table</div>
+    <div class="df-wrap">
+      <table class="dataframe">
+        <thead>
+          <tr>
+            <th>ID</th><th>Username</th><th>Email</th><th>Phone</th>
+            <th>College</th><th>Degree</th><th>Year</th><th>City</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.id }}</td>
+            <td><strong>{{ row.username }}</strong></td>
+            <td>{{ row.email }}</td>
+            <td>{{ row.phone }}</td>
+            <td>{{ row.college_name }}</td>
+            <td>{{ row.degree }}</td>
+            <td>{{ row.year }}</td>
+            <td>{{ row.city }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>Abhi koi data nahi hai.</p>
+      <p>Pehle <a href="/">Register karo</a> phir <a href="/education">Education details bharo</a></p>
+    </div>
+    {% endif %}
+
+    <!-- Navigation -->
+    <div class="nav-links">
+      <a href="/">← Register</a>
+      <a href="/education">Education Form</a>
+      <a href="/combined">🔄 Refresh</a>
+    </div>
+
+  </main>
+</body>
+</html>
